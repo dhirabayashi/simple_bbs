@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>My 掲示板</title>
+</head>
+<body>
+    <p>
+        投稿削除
+    </p>
+    <hr>
+    <th:block th:if="${message}">
+        <div th:text="${message}" style="color:red"></div>
+    </th:block>
+    <form method="POST" action="/session/delete">
+        ■パスワード
+        <br>
+        <input type="password" name="password" maxlength="16">
+        <input type="hidden" name="id" th:value="${id}">
+        <input type="submit" value="削除">
+    </form>
+    <hr>
+    <p>
+        <a href="/session/index">戻る</a>
+    </p>
+</body>
+</html>

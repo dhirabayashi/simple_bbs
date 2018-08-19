@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>My 掲示板</title>
+</head>
+<body>
+    <p>
+        [<a href="/session/post">新規投稿</a>]
+    </p>
+    <hr>
+    <div th:each="log : ${logs}">
+        <p>
+            ■[<th:block th:text="${log.name}"></th:block>]
+            <th:block th:if="${log.url}">
+                [<a th:href="${log.url}">HP</a>]
+            </th:block>
+            <br/>
+            [<a th:href="'/session/delete/' + ${log.logId}">削除</a>]<br/>
+            <th:block th:each="line: ${log.message.split('\r\n|\r|\n', -1)}">
+                <th:block th:text="${line}" /><br/>
+            </th:block>
+            <th:block th:text="${log.writeTime}"></th:block><br/>
+        </p>
+        <hr>
+    </div>
+</body>
+</html>

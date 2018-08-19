@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>My 掲示板</title>
+</head>
+<body>
+    <p>
+        ログイン
+    </p>
+    <hr>
+    <th:block th:if="${message}">
+        <div th:text="${message}" style="color:red"></div>
+    </th:block>
+    <form method="post" action="/login">
+        ■ユーザ名
+        <br>
+        <input type="text" name="userName" maxlength="50">
+        <br>
+        ■パスワード
+        <br>
+        <input type="password" name="password" maxlength="16">
+        <br>
+        <input type="submit" value="ログイン">
+    </form>
+    <hr>
+    <a href="user_add">ユーザ登録</a>
+</body>
+</html>
