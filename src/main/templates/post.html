@@ -9,7 +9,7 @@
         新規投稿
     </p>
     <hr>
-    <form method="POST" action="/session/post">
+    <form method="POST" action="/session/post" enctype="multipart/form-data">
         <th:block th:each="message : ${errorMessage}">
             <div th:text="${message}" style="color:red"></div>
         </th:block>
@@ -25,6 +25,9 @@
         ■本文 (必須)
         <br>
         <textarea maxlength="10000" name="message" rows="10" cols="40"></textarea>
+        <br>
+        ■画像
+        <input type="file" name="image" accept="image/*">
         <br>
         ■削除パスワード (必須)
         <br>

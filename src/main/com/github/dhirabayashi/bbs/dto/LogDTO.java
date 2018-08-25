@@ -12,8 +12,12 @@ public class LogDTO {
     private String name;
     private String url;
     private String message;
+    private Blob image;
     private String password;
     private Timestamp writeTime;
+
+    private String imagePath;
+    private byte[] imageByte;
 
     public int getLogId() {
         return logId;
@@ -47,6 +51,14 @@ public class LogDTO {
         this.message = message;
     }
 
+    public Blob getImage() {
+        return image;
+    }
+
+    public void setImage(Blob image) {
+        this.image = image;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -61,6 +73,22 @@ public class LogDTO {
 
     public void setWriteTime(Timestamp writeTime) {
         this.writeTime = writeTime;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public byte[] getImageByte() {
+        return imageByte;
+    }
+
+    public void setImageByte(byte[] imageByte) {
+        this.imageByte = imageByte;
     }
 
     public List<String> validate() {

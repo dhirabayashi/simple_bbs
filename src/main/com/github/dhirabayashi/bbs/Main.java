@@ -5,13 +5,22 @@ import com.github.dhirabayashi.bbs.dao.UserDAO;
 import com.github.dhirabayashi.bbs.db.DBManager;
 import com.github.dhirabayashi.bbs.dto.LogDTO;
 import com.github.dhirabayashi.bbs.dto.UserDTO;
+import com.github.dhirabayashi.bbs.util.Utils;
 import org.apache.commons.lang3.StringUtils;
 import spark.ModelAndView;
+import spark.Request;
 import spark.Session;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
 
+import javax.servlet.MultipartConfigElement;
+import javax.sql.rowset.serial.SerialBlob;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static spark.Spark.*;
@@ -64,6 +73,15 @@ public class Main {
             var dao = new LogDAO();
             var logs = dao.selectAll();
 
+            // 画像処理
+            for(LogDTO log : logs) {
+                var image = log.getImageByte();
+                var tmpFile = Files.createTempFile(Paths.get(""),"", "");
+                Files.write(tmpFile, image);
+                log.setImagePath(tmpFile.toString());
+                tmpFile.toFile().deleteOnExit();
+            }
+
             Map<String, Object> model = new HashMap<>();
             model.put("logs", logs);
             return forward("index", model);
@@ -81,10 +99,13 @@ public class Main {
 
         // 投稿処理
         post("/session/post", (req, res) -> {
-            String userName = req.queryParams("userName");
-            String url = req.queryParams("url");
-            String message = req.queryParams("message");
-            String password = req.queryParams("password");
+            req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(System.getProperty("java.io.tmpdir")));
+
+            // enctype="multipart/form-data"だと普通の方法ではリクエストパラメータを取得できない
+            String userName = getString(req,"userName");
+            String url = getString(req, "url");
+            String message = getString(req, "message");
+            String password = getString(req, "password");
 
             LogDTO log = new LogDTO();
             log.setName(userName);
@@ -92,6 +113,10 @@ public class Main {
             log.setMessage(message);
             log.setPassword(password);
             log.setWriteTime(new Timestamp(new java.util.Date().getTime()));
+
+            try(var input = req.raw().getPart("image").getInputStream()) {
+                log.setImage(new SerialBlob(Utils.inputStreamToBytes(input)));
+            }
 
             // バリデーション
             var errorMessage = log.validate();
@@ -182,6 +207,15 @@ public class Main {
 
             return forward("user_add_complete");
         });
+
+        // 画像取得
+        get("/session/*", (req, res) -> {
+            var filename = req.splat()[0];
+            var out = res.raw().getOutputStream();
+            var bytes = Files.readAllBytes(Paths.get(filename));
+            out.write(bytes);
+            return res;
+        });
     }
 
     private static String forward(String viewName) {
@@ -195,4 +229,14 @@ public class Main {
         );
     }
 
+    private static String getString(Request req, String name) throws Exception {
+        List<String> list = new ArrayList<>();
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(req.raw().getPart(name).getInputStream()))) {
+            String line;
+            while((line = br.readLine()) != null) {
+                list.add(line);
+            }
+        }
+        return String.join(System.getProperty("line.separator"), list);
+    }
 }
