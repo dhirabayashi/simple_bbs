@@ -17,8 +17,8 @@
             </th:block>
             <br/>
             [<a th:href="'/session/delete/' + ${log.logId}">削除</a>]<br/>
-            <th:block th:if="${log.imagePath}">
-                <a th:href="${log.imagePath}"><img th:src="${log.imagePath}" width="10%" height="10%"></a>
+            <th:block th:if="${log.imageName}">
+                <a th:href="${log.imageName}"><img th:src="${log.imageName}" width="10%" height="10%"></a>
                 <br>
             </th:block>
             <th:block th:each="line: ${log.message.split('\r\n|\r|\n', -1)}">

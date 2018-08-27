@@ -14,7 +14,7 @@ import java.util.List;
 
 public class LogDAO {
     public void insert(LogDTO log) throws SQLException {
-        var sql = "insert into log values (?, ?, ?, ?, ?, ?, ?)";
+        var sql = "insert into log values (?, ?, ?, ?, ?, ?, ?, ?)";
         try(Connection con = DBManager.getConnection();
             PreparedStatement pstmt = con.prepareStatement(sql)) {
             con.setAutoCommit(true);
@@ -24,15 +24,16 @@ public class LogDAO {
             pstmt.setString(3, log.getUrl());
             pstmt.setString(4, log.getMessage());
             pstmt.setBlob(5, log.getImage());
-            pstmt.setString(6, log.getPassword()); // 本当は暗号化すべきだが
-            pstmt.setTimestamp(7, log.getWriteTime());
+            pstmt.setString(6, log.getImageName());
+            pstmt.setString(7, log.getPassword()); // 本当は暗号化すべきだが
+            pstmt.setTimestamp(8, log.getWriteTime());
 
             pstmt.executeUpdate();
         }
     }
 
     public List<LogDTO> selectAll() throws SQLException, IOException {
-        var sql = "select log_id, name, url, message, image, password, write_time from log order by write_time desc";
+        var sql = "select log_id, name, url, message, image, image_name, password, write_time from log order by write_time desc";
 
         List<LogDTO> logs = new ArrayList<>();
         try (Connection con = DBManager.getConnection();
@@ -45,6 +46,7 @@ public class LogDAO {
                 log.setUrl(rset.getString("url"));
                 log.setMessage(rset.getString("message"));
                 log.setImage(rset.getBlob("image"));
+                log.setImageName(rset.getString("image_name"));
                 log.setPassword(rset.getString("password"));
                 log.setWriteTime(rset.getTimestamp("write_time"));
 

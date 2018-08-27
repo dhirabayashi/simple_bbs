@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static spark.Spark.*;
 
@@ -76,10 +77,10 @@ public class Main {
             // 画像処理
             for(LogDTO log : logs) {
                 var image = log.getImageByte();
-                var tmpFile = Files.createTempFile(Paths.get(""),"", "");
-                Files.write(tmpFile, image);
-                log.setImagePath(tmpFile.toString());
-                tmpFile.toFile().deleteOnExit();
+                var imageName = log.getImageName();
+
+                Session session = req.session(false);
+                session.attribute(imageName, image);
             }
 
             Map<String, Object> model = new HashMap<>();
@@ -117,6 +118,19 @@ public class Main {
             try(var input = req.raw().getPart("image").getInputStream()) {
                 log.setImage(new SerialBlob(Utils.inputStreamToBytes(input)));
             }
+
+            // 画像ファイル名
+            // 拡張子の取得
+            var header = req.raw().getPart("image").getHeader("Content-Disposition");
+            var pattern = Pattern.compile("filename=\".*\\.(.*)\"");
+            var m = pattern.matcher(header);
+
+            var filename = String.valueOf(System.nanoTime());
+            if(m.find()) {
+                var extension = m.group(1);
+                filename = filename + "." + extension;
+            }
+            log.setImageName(filename);
 
             // バリデーション
             var errorMessage = log.validate();
@@ -212,7 +226,9 @@ public class Main {
         get("/session/*", (req, res) -> {
             var filename = req.splat()[0];
             var out = res.raw().getOutputStream();
-            var bytes = Files.readAllBytes(Paths.get(filename));
+
+            var session = req.session(false);
+            var bytes = (byte[])session.attribute(filename);
             out.write(bytes);
             return res;
         });
