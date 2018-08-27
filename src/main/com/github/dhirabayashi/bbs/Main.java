@@ -14,9 +14,8 @@ import spark.template.thymeleaf.ThymeleafTemplateEngine;
 
 import javax.servlet.MultipartConfigElement;
 import javax.sql.rowset.serial.SerialBlob;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,6 +66,13 @@ public class Main {
             session.attribute("__user_name__", userName);
 
             return forward("login_complete");
+        });
+
+        // ログアウト
+        get("/session/logout", (req, res) -> {
+            var session = req.session(false);
+            session.invalidate();
+            return forward("logout_complete");
         });
 
         // 投稿表示
