@@ -223,7 +223,7 @@ public class Main {
         });
 
         // 画像取得
-        get("/session/*", (req, res) -> {
+        get("/session/image/*", (req, res) -> {
             var filename = req.splat()[0];
             var out = res.raw().getOutputStream();
 
